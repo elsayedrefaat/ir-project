@@ -168,6 +168,7 @@ public class JFrame1 extends javax.swing.JFrame {
     public static ArrayList<DocData> getDocData(ArrayList<DocData> docs, File docDir) {
         File[] files = docDir.listFiles();
 
+        assert files != null;
         for (File f : files) {
             if (!f.isDirectory() && !f.isHidden() && f.exists() && f.canRead()) {
                 try {
@@ -250,7 +251,7 @@ public class JFrame1 extends javax.swing.JFrame {
         setTitle("IR Project");
 
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("IR Project 2023");
@@ -258,27 +259,19 @@ public class JFrame1 extends javax.swing.JFrame {
         jButton1.setText("Indexing");
         jButton1.setMaximumSize(new java.awt.Dimension(82, 23));
         jButton1.setMinimumSize(new java.awt.Dimension(82, 23));
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed();
-            }
-        });
+        jButton1.addActionListener(evt -> jButton1ActionPerformed());
 
         jButton2.setText("Searching");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed();
-            }
-        });
+        jButton2.addActionListener(evt -> jButton2ActionPerformed());
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"Lucene", "Incidence Matrix", "Inverted Index", "Positional Index", "Bi-word Index"}));
         jComboBox1.addItemListener(this::jComboBox1ItemStateChanged);
         jComboBox1.addActionListener(evt -> jComboBox1ActionPerformed());
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI Light", 3, 12)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Segoe UI Light", Font.BOLD | Font.ITALIC, 12)); // NOI18N
         jLabel2.setText("Choose Index");
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI Light", 3, 14)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Segoe UI Light", Font.BOLD | Font.ITALIC, 14)); // NOI18N
         jLabel3.setText("Pre-Processing");
 
         jCheckBox1.setText("Tokenization");
@@ -437,6 +430,7 @@ public class JFrame1 extends javax.swing.JFrame {
         // Load the documents from a file or some other source
         File[] files = docDir.listFiles();
 
+        assert files != null;
         for (File f : files) {
             if (!f.isDirectory() && !f.isHidden() && f.exists() && f.canRead()) {
                 try {
@@ -557,11 +551,7 @@ public class JFrame1 extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new JFrame1().setVisible(true);
-            }
-        });
+        java.awt.EventQueue.invokeLater(() -> new JFrame1().setVisible(true));
     }
 
     private javax.swing.JCheckBox jCheckBox1;
