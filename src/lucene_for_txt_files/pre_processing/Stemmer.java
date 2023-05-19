@@ -10,8 +10,6 @@ import java.util.Set;
 import lucene_for_txt_files.docs_manager.DocData;
 import org.tartarus.snowball.ext.PorterStemmer;
 
-import javax.print.Doc;
-
 public class Stemmer {
 
     public static void main(String[] args) {
@@ -24,14 +22,6 @@ public class Stemmer {
         // Remove the first empty document
         documents = Arrays.copyOfRange(documents, 1, documents.length);
 
-        // Remove the stop words from the documents
-        Set<String> stopWords = getStopWords();
-//        documents = removeStopWords(documents, stopWords);
-
-        // Apply stemming to the documents
-//        documents = applyStemming(documents);
-
-        // Print the first stemmed document
         System.out.println(documents[0]);
     }
 
@@ -50,7 +40,7 @@ public class Stemmer {
     }
 
     public static Set<String> getStopWords() {
-        Set<String> stopWords = new HashSet<String>();
+        Set<String> stopWords = new HashSet<>();
         try (BufferedReader br = new BufferedReader(new FileReader("stopwords.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -90,8 +80,6 @@ public class Stemmer {
                     word = word.substring(0, word.length() - 2);
                 } else if (word.endsWith("ies")) {
                     word = word.substring(0, word.length() - 2) + "i";
-                } else if (word.endsWith("ss")) {
-                    // do nothing
                 } else if (word.endsWith("s")) {
                     word = word.substring(0, word.length() - 1);
                 }

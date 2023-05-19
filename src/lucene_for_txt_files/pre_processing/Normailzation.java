@@ -21,7 +21,7 @@ public class Normailzation {
     public static ArrayList<DocData> normalize(ArrayList<DocData> docs) {
         ArrayList<DocData> result = new ArrayList<>();
         for (DocData doc : docs) {
-            List<String> data = Arrays.asList(doc.abstractText.split("\\s+"));
+            String[] data = doc.abstractText.split("\\s+");
             List<String> docData = new ArrayList<>();
             for (String word : data) {
                 String normalizedWord = word.toLowerCase();

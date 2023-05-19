@@ -3,6 +3,7 @@ package lucene_for_txt_files.pre_processing;
 import lucene_for_txt_files.docs_manager.DocData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Tokenizer {
@@ -18,10 +19,8 @@ public class Tokenizer {
             // Split by whitespace
             String[] tokensArray = doc.abstractText.split("\\s+");
             // Convert array to list
-            List<String> tokensList = new ArrayList<String>();
-            for (String token : tokensArray) {
-                tokensList.add(token);
-            }
+            List<String> tokensList = new ArrayList<>();
+            Collections.addAll(tokensList, tokensArray);
             i++;
             results.add(new DocData(String.valueOf(i), "", "", "", String.join(" ",tokensList)));
         }
