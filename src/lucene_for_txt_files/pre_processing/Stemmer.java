@@ -1,55 +1,108 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package lucene_for_txt_files.pre_processing;
 
-/**
- *
- * @author Elsayed Refaat
- */
-import java.io.File;
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.List;
-import static lucene_for_txt_files.pre_processing.Normailzation.normalize;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-import lucene_for_txt_files.JFrame1;
 import lucene_for_txt_files.docs_manager.DocData;
-import lucene_for_txt_files.docs_manager.DocsSplitter;
 import org.tartarus.snowball.ext.PorterStemmer;
+
+import javax.print.Doc;
 
 public class Stemmer {
 
-
-    public static ArrayList<DocData> MyStemmer(List<DocData> docs) {
-        ArrayList<DocData> result = new ArrayList<>();
-        PorterStemmer stemmer = new PorterStemmer();
-        for (DocData doc : docs) {
-            stemmer.setCurrent(doc.abstractText);
-            stemmer.stem();
-            result.add(new DocData(doc.id, "", "", "", stemmer.getCurrent()));
-        }
-        return result;
-    }
-    
     public static void main(String[] args) {
-        ArrayList<DocData> docs = new ArrayList<>();
-        String docsPath = "cisi";
+        String fileName = "cisi/CISI.ALL";
+        String data = loadData(fileName);
 
-        final File docDir = new File(docsPath);
-        if (!docDir.exists() || !docDir.canRead()) {
-            System.out.println("Document directory does not exist or is not readable, please check the path");
+        // Split the data into documents
+        String[] documents = data.split("\\.I ");
+
+        // Remove the first empty document
+        documents = Arrays.copyOfRange(documents, 1, documents.length);
+
+        // Remove the stop words from the documents
+        Set<String> stopWords = getStopWords();
+//        documents = removeStopWords(documents, stopWords);
+
+        // Apply stemming to the documents
+//        documents = applyStemming(documents);
+
+        // Print the first stemmed document
+        System.out.println(documents[0]);
+    }
+
+    public static String loadData(String fileName) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             System.exit(1);
         }
-
-        // Load the documents from a file or some other source
-        docs = JFrame1.getDocData(docs, docDir);
-
-        docs = MyStemmer(docs);
-        
-        for(DocData doc:docs){
-            System.out.println(doc.abstractText);
-        }
+        return sb.toString();
     }
+
+    public static Set<String> getStopWords() {
+        Set<String> stopWords = new HashSet<String>();
+        try (BufferedReader br = new BufferedReader(new FileReader("stopwords.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                stopWords.add(line.trim());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return stopWords;
+    }
+
+    public static ArrayList<DocData> removeStopWords(ArrayList<DocData> documents, Set<String> stopWords) {
+        ArrayList<DocData> results = new ArrayList<>();
+        for (int i = 0; i < documents.size(); i++) {
+            String[] words = documents.get(i).abstractText.split("\\s+");
+            StringBuilder sb = new StringBuilder();
+            for (String word : words) {
+                if (!stopWords.contains(word.toLowerCase())) {
+                    sb.append(word).append(" ");
+                }
+            }
+            results.add(new DocData(String.valueOf(i + 1), "", "", "", sb.toString().trim()));
+        }
+        return results;
+    }
+
+    public static ArrayList<DocData> applyStemming(ArrayList<DocData> documents) {
+        PorterStemmer stemmer = new PorterStemmer();
+        System.out.println(documents.size());
+        ArrayList<DocData> results = new ArrayList<>();
+        for (int i = 0; i < documents.size(); i++) {
+            String[] words = documents.get(i).abstractText.split("\\s+");
+            StringBuilder sb = new StringBuilder();
+            for (String word : words) {
+                if (word.endsWith("sses")) {
+                    word = word.substring(0, word.length() - 2);
+                } else if (word.endsWith("ies")) {
+                    word = word.substring(0, word.length() - 2) + "i";
+                } else if (word.endsWith("ss")) {
+                    // do nothing
+                } else if (word.endsWith("s")) {
+                    word = word.substring(0, word.length() - 1);
+                }
+                stemmer.setCurrent(word);
+                stemmer.stem();
+                sb.append(stemmer.getCurrent()).append(" ");
+            }
+            results.add(new DocData(String.valueOf(i + 1), "", "", "", sb.toString().trim()));
+        }
+        System.out.println(results.size());
+        return results;
+    }
+
 }

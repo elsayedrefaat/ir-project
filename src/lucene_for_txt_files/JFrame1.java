@@ -6,7 +6,7 @@ import inverted_index.InvertedIndexSearch;
 import lucene_for_txt_files.docs_manager.DocData;
 import lucene_for_txt_files.docs_manager.DocsSplitter;
 import lucene_for_txt_files.pre_processing.Lemmatizer;
-import lucene_for_txt_files.pre_processing.Stemmer;
+import lucene_for_txt_files.pre_processing.Tokenizer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -26,7 +26,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import positional_index.PositionalIndex;
-import pre_processing.Tokenizer;
 import term_doc.SearchAlgorithm;
 
 import javax.swing.*;
@@ -37,11 +36,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static lucene_for_txt_files.pre_processing.Normailzation.normalize;
+import static lucene_for_txt_files.pre_processing.Stemmer.*;
 
 public class JFrame1 extends javax.swing.JFrame {
 
@@ -96,9 +97,6 @@ public class JFrame1 extends javax.swing.JFrame {
 
         // Load the documents from a file or some other source
 
-        if (jCheckBox3.isSelected()) {
-            docs = Stemmer.MyStemmer(docs);
-        }
         term_doc.IncidenceMatrix matrix = new term_doc.IncidenceMatrix(docs);
 
         String filename = indexPath + ".csv";
@@ -135,17 +133,9 @@ public class JFrame1 extends javax.swing.JFrame {
                 for (DocData document : docs) {
                     Document doc = new Document();
 
-                    List<String> text;
-                    if (jCheckBox1.isSelected()) {
-                        text = Tokenizer.tokenize(document.abstractText);
-                    } else {
-                        text = Tokenizer.tokenize(document.abstractText);
-
-                    }
-
                     doc.add(new Field("id", document.id, Field.Store.YES, Field.Index.ANALYZED)); //Index file content
 
-                    doc.add(new Field("contents", String.join(" ", text), Field.Store.YES, Field.Index.ANALYZED)); //Index file content
+                    doc.add(new Field("contents", String.join(" ", document.abstractText), Field.Store.YES, Field.Index.ANALYZED)); //Index file content
 
                     doc.add(new Field("filename", f.getName(), //Index file name
                             Field.Store.YES, Field.Index.ANALYZED));
@@ -459,22 +449,25 @@ public class JFrame1 extends javax.swing.JFrame {
         }
         try {
             if (jCheckBox1.isSelected()) {
-                //TODO: implement tokenization
+                docs = Tokenizer.tokenize(docs);
+                System.out.println("After Tokenization: " + docs.get(0).abstractText);
             }
             if (jCheckBox2.isSelected()) {
-                //TODO: implement normalization
+                docs = normalize(docs);
+                System.out.println("After Normalization: " + docs.get(0).abstractText);
             }
             if (jCheckBox3.isSelected()) {
-                //TODO: implement stemming
+                docs = applyStemming(docs);
+                System.out.println("After Stemming: " + docs.get(0).abstractText);
             }
             if (jCheckBox4.isSelected()) {
                 Lemmatizer.lemmatize(docs);
-                for (DocData doc : docs) {
-                    System.out.println(doc.abstractText);
-                }
+                System.out.println("After Lemmatization: " + docs.get(0).abstractText);
             }
             if (jCheckBox5.isSelected()) {
-                //TODO: implement stopWord removal
+                Set<String> stopWords = getStopWords();
+                docs = removeStopWords(docs, stopWords);
+                System.out.println("After StopWords Removal: " + docs.get(0).abstractText);
             }
             int index = jComboBox1.getSelectedIndex();
             if (index == 0) {
@@ -517,7 +510,7 @@ public class JFrame1 extends javax.swing.JFrame {
                 invertedIndexSearch();
             } else if (jComboBox2.getSelectedIndex() == 3) {
                 positionalIndexSearch();
-            } else if (jComboBox2.getSelectedIndex()==4) {
+            } else if (jComboBox2.getSelectedIndex() == 4) {
                 biIndex.loadIndex("bi-index.txt");
 
                 // Search for a query with the AND operator

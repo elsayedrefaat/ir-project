@@ -5,14 +5,12 @@
 package lucene_for_txt_files.pre_processing;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lucene_for_txt_files.JFrame1;
 import lucene_for_txt_files.docs_manager.DocData;
-import lucene_for_txt_files.docs_manager.DocsSplitter;
-import pre_processing.Tokenizer;
 
 /**
  *
@@ -23,7 +21,7 @@ public class Normailzation {
     public static ArrayList<DocData> normalize(ArrayList<DocData> docs) {
         ArrayList<DocData> result = new ArrayList<>();
         for (DocData doc : docs) {
-            List<String> data = Tokenizer.tokenize(doc.abstractText);
+            List<String> data = Arrays.asList(doc.abstractText.split("\\s+"));
             List<String> docData = new ArrayList<>();
             for (String word : data) {
                 String normalizedWord = word.toLowerCase();
