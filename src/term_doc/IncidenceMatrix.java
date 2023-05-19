@@ -1,11 +1,11 @@
 package term_doc;
 
-import docs_manager.DocData;
-import docs_manager.DocsSplitter;
+
+import lucene_for_txt_files.docs_manager.DocData;
+import lucene_for_txt_files.docs_manager.DocsSplitter;
 
 import java.io.*;
 import java.util.*;
-import pre_processing.Tokenizer;
 
 public class IncidenceMatrix {
 

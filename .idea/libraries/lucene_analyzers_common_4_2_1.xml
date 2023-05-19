@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="lucene-analyzers-common-4.2.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../lucene-analyzers-common-4.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lucene-core-4.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../lucene-queryparser-4.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../pdfbox-app-3.0.0-alpha3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

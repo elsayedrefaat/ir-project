@@ -1,4 +1,6 @@
-package docs_manager;
+package lucene_for_txt_files.docs_manager;
+
+import lucene_for_txt_files.docs_manager.DocData;
 
 import java.io.BufferedReader;
 import java.io.File;

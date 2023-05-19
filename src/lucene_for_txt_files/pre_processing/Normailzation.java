@@ -4,12 +4,14 @@
  */
 package lucene_for_txt_files.pre_processing;
 
-import docs_manager.DocData;
-import docs_manager.DocsSplitter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import lucene_for_txt_files.JFrame1;
+import lucene_for_txt_files.docs_manager.DocData;
+import lucene_for_txt_files.docs_manager.DocsSplitter;
 import pre_processing.Tokenizer;
 
 /**
@@ -45,19 +47,8 @@ public class Normailzation {
         }
 
         // Load the documents from a file or some other source
-        File[] files = docDir.listFiles();
+        docs = JFrame1.getDocData(docs, docDir);
 
-        for (File f : files) {
-            if (!f.isDirectory() && !f.isHidden() && f.exists() && f.canRead()) {
-                try {
-                    System.out.println("Indexing " + f.getCanonicalPath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                docs = DocsSplitter.tokenize(f);
-            }
-        }
-        
         docs = normalize(docs);
         
         for(DocData doc:docs){

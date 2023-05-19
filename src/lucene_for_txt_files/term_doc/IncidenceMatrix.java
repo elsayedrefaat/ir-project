@@ -1,6 +1,8 @@
+package lucene_for_txt_files.term_doc;
 
-import docs_manager.DocData;
 import java.util.*;
+
+import lucene_for_txt_files.docs_manager.DocData;
 import pre_processing.Tokenizer;
 
 public class IncidenceMatrix {

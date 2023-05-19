@@ -1,4 +1,4 @@
-package docs_manager;
+package lucene_for_txt_files.docs_manager;
 
 public class DocData {
     public String id;
