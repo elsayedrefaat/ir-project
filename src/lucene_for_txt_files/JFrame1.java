@@ -1,24 +1,11 @@
 package lucene_for_txt_files;
 
+import bi_word.BiwordIndex;
 import inverted_index.InvertedIndex;
 import inverted_index.InvertedIndexSearch;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import lucene_for_txt_files.docs_manager.DocData;
 import lucene_for_txt_files.docs_manager.DocsSplitter;
+import lucene_for_txt_files.pre_processing.Lemmatizer;
 import lucene_for_txt_files.pre_processing.Stemmer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
@@ -43,10 +30,24 @@ import pre_processing.Tokenizer;
 import term_doc.SearchAlgorithm;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JFrame1 extends javax.swing.JFrame {
 
     ArrayList<DocData> docs = new ArrayList<>();
+    String docsPath = "cisi";
+    BiwordIndex biIndex = new BiwordIndex();
 
     public JFrame1() {
         initComponents();
@@ -84,9 +85,8 @@ public class JFrame1 extends javax.swing.JFrame {
 //
     /////////////////////////////////////////////-----incedinceMatrix-------\\\\\\\\\\\\\\\\\\\\\\\\\
 
-    public void incedinceMatrix() throws IOException {
+    public void incedinceMatrix(ArrayList<DocData> docs) throws IOException {
         String indexPath = "matrix";
-        String docsPath = "cisi";
 
         final File docDir = new File(docsPath);
         if (!docDir.exists() || !docDir.canRead()) {
@@ -95,14 +95,6 @@ public class JFrame1 extends javax.swing.JFrame {
         }
 
         // Load the documents from a file or some other source
-        File[] files = docDir.listFiles();
-
-        for (File f : files) {
-            if (!f.isDirectory() && !f.isHidden() && f.exists() && f.canRead()) {
-                System.out.println("Indexing " + f.getCanonicalPath());
-                docs = DocsSplitter.tokenize(f);
-            }
-        }
 
         if (jCheckBox3.isSelected()) {
             docs = Stemmer.MyStemmer(docs);
@@ -127,8 +119,7 @@ public class JFrame1 extends javax.swing.JFrame {
         // Do something with the matrix and the list of terms, e.g. use them for information retrieval
     }
 
-    private void indexer() throws IOException {
-        ArrayList<DocData> docs = new ArrayList<>();
+    private void indexer(ArrayList<DocData> docs) throws IOException {
         Directory indexDirectory = FSDirectory.open(new File("index"));
         SimpleAnalyzer sa = new SimpleAnalyzer(Version.LUCENE_42);
 
@@ -141,10 +132,6 @@ public class JFrame1 extends javax.swing.JFrame {
 
             assert files != null;
             for (File f : files) {
-                if (!f.isDirectory() && !f.isHidden() && f.exists() && f.canRead()) {
-                    System.out.println("Indexing " + f.getCanonicalPath());
-                    docs = DocsSplitter.tokenize(f);
-                }
                 for (DocData document : docs) {
                     Document doc = new Document();
 
@@ -174,32 +161,8 @@ public class JFrame1 extends javax.swing.JFrame {
 
     }
 
-    private void invertedIndexIndexer() {
-        List<DocData> documents = new ArrayList<>();
-        // populate documents list with DocData objects
-        String docsPath = "cisi";
-
-        final File docDir = new File(docsPath);
-        if (!docDir.exists() || !docDir.canRead()) {
-            System.out.println("Document directory does not exist or is not readable, please check the path");
-            System.exit(1);
-        }
-
-        // Load the documents from a file or some other source
-        File[] files = docDir.listFiles();
-
-        for (File f : files) {
-            if (!f.isDirectory() && !f.isHidden() && f.exists() && f.canRead()) {
-                try {
-                    System.out.println("Indexing " + f.getCanonicalPath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                documents = DocsSplitter.tokenize(f);
-            }
-        }
-
-        InvertedIndex index = new InvertedIndex(documents);
+    private void invertedIndexIndexer(ArrayList<DocData> docs) {
+        InvertedIndex index = new InvertedIndex(docs);
         try {
             index.writeIndexToFile("index.txt");
         } catch (IOException e) {
@@ -207,16 +170,7 @@ public class JFrame1 extends javax.swing.JFrame {
         }
     }
 
-    private void positionalIndexIndexer() {
-        ArrayList<DocData> docs = new ArrayList<>();
-        String docsPath = "cisi";
-
-        final File docDir = new File(docsPath);
-        if (!docDir.exists() || !docDir.canRead()) {
-            System.out.println("Document directory does not exist or is not readable, please check the path");
-            System.exit(1);
-        }
-        docs = JFrame1.getDocData(docs,docDir);
+    private void positionalIndexIndexer(ArrayList<DocData> docs) {
         PositionalIndex index = new PositionalIndex(docs);
         index.saveToFile("positional-index.txt");
     }
@@ -265,26 +219,19 @@ public class JFrame1 extends javax.swing.JFrame {
     }
 
     private void positionalIndexSearch() {
-        // Load index from file and perform search
         PositionalIndex indexFromFile = new PositionalIndex(Collections.emptyList());
         indexFromFile.loadFromFile("positional-index.txt");
 
-        String phrase = "in large information systems";
+        String phrase = jTextArea2.getText();
         System.out.println("Search query: " + phrase);
         List<Integer> results = indexFromFile.search(phrase);
         jTextArea1.setText("Search Results : ");
         for (int id : results) {
             System.out.println("Document " + id);
-            jTextArea1.append("Document " + id+"\n");
+            jTextArea1.append("Document " + id + "\n");
         }
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
@@ -296,10 +243,10 @@ public class JFrame1 extends javax.swing.JFrame {
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
         javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
-        javax.swing.JCheckBox jCheckBox2 = new javax.swing.JCheckBox();
+        jCheckBox2 = new javax.swing.JCheckBox();
         jCheckBox3 = new javax.swing.JCheckBox();
-        javax.swing.JCheckBox jCheckBox4 = new javax.swing.JCheckBox();
-        javax.swing.JCheckBox jCheckBox5 = new javax.swing.JCheckBox();
+        jCheckBox4 = new javax.swing.JCheckBox();
+        jCheckBox5 = new javax.swing.JCheckBox();
         jComboBox2 = new javax.swing.JComboBox<>();
         javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
         javax.swing.JScrollPane jScrollPane2 = new javax.swing.JScrollPane();
@@ -491,20 +438,59 @@ public class JFrame1 extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed() {
+        final File docDir = new File("cisi");
+        if (!docDir.exists() || !docDir.canRead()) {
+            System.out.println("Document directory does not exist or is not readable, please check the path");
+            System.exit(1);
+        }
+
+        // Load the documents from a file or some other source
+        File[] files = docDir.listFiles();
+
+        for (File f : files) {
+            if (!f.isDirectory() && !f.isHidden() && f.exists() && f.canRead()) {
+                try {
+                    System.out.println("Indexing " + f.getCanonicalPath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                docs = DocsSplitter.tokenize(f);
+            }
+        }
         try {
+            if (jCheckBox1.isSelected()) {
+                //TODO: implement tokenization
+            }
+            if (jCheckBox2.isSelected()) {
+                //TODO: implement normalization
+            }
+            if (jCheckBox3.isSelected()) {
+                //TODO: implement stemming
+            }
+            if (jCheckBox4.isSelected()) {
+                Lemmatizer.lemmatize(docs);
+                for (DocData doc : docs) {
+                    System.out.println(doc.abstractText);
+                }
+            }
+            if (jCheckBox5.isSelected()) {
+                //TODO: implement stopWord removal
+            }
             int index = jComboBox1.getSelectedIndex();
             if (index == 0) {
-                indexer();
+                indexer(docs);
             } else if (index == 1) {
                 try {
-                    incedinceMatrix();
+                    incedinceMatrix(docs);
                 } catch (IOException ex) {
                     Logger.getLogger(JFrame1.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else if (index == 2) {
-                invertedIndexIndexer();
+                invertedIndexIndexer(docs);
             } else if (index == 3) {
-                positionalIndexIndexer();
+                positionalIndexIndexer(docs);
+            } else if (index == 4) {
+                biIndex.indexDocuments(docs, "bi-index.txt");
             }
 
         } catch (IOException ex) {
@@ -525,13 +511,20 @@ public class JFrame1 extends javax.swing.JFrame {
         try {
             if (jComboBox2.getSelectedIndex() == 0) {
                 searcher();
-
             } else if (jComboBox2.getSelectedIndex() == 1) {
                 matrixSearch();
             } else if (jComboBox2.getSelectedIndex() == 2) {
                 invertedIndexSearch();
             } else if (jComboBox2.getSelectedIndex() == 3) {
                 positionalIndexSearch();
+            } else if (jComboBox2.getSelectedIndex()==4) {
+                biIndex.loadIndex("bi-index.txt");
+
+                // Search for a query with the AND operator
+                List<Integer> docIds = biIndex.search(jTextArea2.getText());
+                jTextArea1.setText("Searching for : " + jTextArea2.getText());
+                jTextArea1.append(docIds.toString());
+                System.out.println(docIds);
             }
         } catch (IOException | ParseException ex) {
             Logger.getLogger(JFrame1.class
@@ -579,7 +572,10 @@ public class JFrame1 extends javax.swing.JFrame {
     }
 
     private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
+    private javax.swing.JCheckBox jCheckBox4;
+    private javax.swing.JCheckBox jCheckBox5;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JTextArea jTextArea1;
